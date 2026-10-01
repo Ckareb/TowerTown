@@ -32,7 +32,7 @@ public class GameViewModel extends ViewModel {
 
     private int fieldWidth;
     private int fieldHeight;
-    private int diamondSizePx;
+    private int townSizePx;
     private float density;
 
     private float spawnTimer;
@@ -53,27 +53,22 @@ public class GameViewModel extends ViewModel {
         return enemies;
     }
 
-    public void changeTownLives(int lives) {
-        townLives.setValue(TownPosition.getHealthPoints() - lives);
-    }
-
     public void rollNewPosition() {
         float x = random.nextFloat();
         float y = random.nextFloat();
         townPosition.setValue(new TownPosition(x, y));
     }
 
-    public void setFieldMetrics(int fieldWidth, int fieldHeight, int diamondSizePx, float density) {
+    public void setFieldMetrics(int fieldWidth, int fieldHeight, int townSizePx, float density) {
         this.fieldWidth = fieldWidth;
         this.fieldHeight = fieldHeight;
-        this.diamondSizePx = diamondSizePx;
+        this.townSizePx = townSizePx;
         this.density = density;
     }
 
     public void tick(float dt) {
         if (fieldWidth == 0 || fieldHeight == 0) return;
 
-        // Игра окончена — не двигаем и не спавним
         Integer lives = townLives.getValue();
         if (lives == null || lives <= 0) return;
 
@@ -104,11 +99,11 @@ public class GameViewModel extends ViewModel {
     }
 
     private void checkCollisions() {
-        float[] diamond = getDiamondBoundsPx();
-        if (diamond == null) return;
+        float[] town = getTownBoundsPx();
+        if (town == null) return;
 
-        float dLeft = diamond[0], dTop = diamond[1];
-        float dRight = diamond[2], dBottom = diamond[3];
+        float dLeft = town[0], dTop = town[1];
+        float dRight = town[2], dBottom = town[3];
 
         Iterator<Enemy> it = enemies.iterator();
         while (it.hasNext()) {
@@ -129,27 +124,27 @@ public class GameViewModel extends ViewModel {
         townLives.setValue(next);
     }
 
-    private float[] getDiamondBoundsPx() {
+    private float[] getTownBoundsPx() {
         TownPosition pos = townPosition.getValue();
         if (pos == null) return null;
 
-        float left = pos.getX() * (fieldWidth - diamondSizePx);
-        float top  = pos.getY() * (fieldHeight - diamondSizePx);
-        return new float[]{ left, top, left + diamondSizePx, top + diamondSizePx };
+        float left = pos.getX() * (fieldWidth - townSizePx);
+        float top  = pos.getY() * (fieldHeight - townSizePx);
+        return new float[]{ left, top, left + townSizePx, top + townSizePx };
     }
 
     private void spawnEnemy() {
-        float[] diamond = getDiamondBoundsPx();
-        if (diamond == null) return;
+        float[] town = getTownBoundsPx();
+        if (town == null) return;
 
         float size = ENEMY_SIZE_DP * density;
-        float safeZone = diamondSizePx * 2f;
+        float safeZone = townSizePx * 2f;
 
         List<Integer> freeEdges = new ArrayList<>(4);
-        if (diamond[0] > safeZone)                                 freeEdges.add(0);
-        if (diamond[2] < fieldWidth - safeZone)                    freeEdges.add(1);
-        if (diamond[1] > safeZone)                                 freeEdges.add(2);
-        if (diamond[3] < fieldHeight - safeZone)                   freeEdges.add(3);
+        if (town[0] > safeZone)                                 freeEdges.add(0);
+        if (town[2] < fieldWidth - safeZone)                    freeEdges.add(1);
+        if (town[1] > safeZone)                                 freeEdges.add(2);
+        if (town[3] < fieldHeight - safeZone)                   freeEdges.add(3);
         if (freeEdges.isEmpty()) freeEdges.add(0);
 
         int edge = freeEdges.get(random.nextInt(freeEdges.size()));
@@ -174,8 +169,8 @@ public class GameViewModel extends ViewModel {
                 break;
         }
 
-        float targetX = diamond[0] + diamondSizePx / 2f;
-        float targetY = diamond[1] + diamondSizePx / 2f;
+        float targetX = town[0] + townSizePx / 2f;
+        float targetY = town[1] + townSizePx / 2f;
         float enemyCenterX = x + size / 2f;
         float enemyCenterY = y + size / 2f;
 

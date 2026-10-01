@@ -63,7 +63,7 @@ public class GameActivity extends BaseActivity {
     private void observeTownPosition() {
         viewModel.getTownPosition().observe(this, position -> {
             if (position == null) return;
-            gameRoot.post(() -> moveDiamondTo(position));
+            gameRoot.post(() -> moveTownTo(position));
         });
     }
 
@@ -73,7 +73,7 @@ public class GameActivity extends BaseActivity {
         }
     }
 
-    private void moveDiamondTo(TownPosition position) {
+    private void moveTownTo(TownPosition position) {
         int usableWidth  = gameRoot.getWidth()  - gameRoot.getPaddingLeft() - gameRoot.getPaddingRight();
         int usableHeight = gameRoot.getHeight() - gameRoot.getPaddingTop()  - gameRoot.getPaddingBottom();
 
