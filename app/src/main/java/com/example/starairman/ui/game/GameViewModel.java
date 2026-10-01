@@ -30,7 +30,6 @@ public class GameViewModel extends ViewModel {
 
     private final List<Enemy> enemies = new ArrayList<>();
 
-    // Метрики поля — задаются Activity после первого layout
     private int fieldWidth;
     private int fieldHeight;
     private int diamondSizePx;
@@ -58,17 +57,12 @@ public class GameViewModel extends ViewModel {
         townLives.setValue(TownPosition.getHealthPoints() - lives);
     }
 
-    /**
-     * Генерирует новую случайную позицию в диапазоне [0..1].
-     * Логика чистая: никаких пикселей, никакого Context, никакого View.
-     */
     public void rollNewPosition() {
         float x = random.nextFloat();
         float y = random.nextFloat();
         townPosition.setValue(new TownPosition(x, y));
     }
 
-    /** Вызывается Activity после того, как View измерились. */
     public void setFieldMetrics(int fieldWidth, int fieldHeight, int diamondSizePx, float density) {
         this.fieldWidth = fieldWidth;
         this.fieldHeight = fieldHeight;
@@ -76,7 +70,6 @@ public class GameViewModel extends ViewModel {
         this.density = density;
     }
 
-    /** Один кадр. dt — секунды с прошлого кадра. */
     public void tick(float dt) {
         if (fieldWidth == 0 || fieldHeight == 0) return;
 
@@ -94,7 +87,6 @@ public class GameViewModel extends ViewModel {
         }
     }
 
-    // ---------- Движение ----------
 
     private void moveEnemies(float dt) {
         Iterator<Enemy> it = enemies.iterator();
@@ -103,7 +95,6 @@ public class GameViewModel extends ViewModel {
             e.setX(e.getX() + (e.getVx() * dt));
             e.setY(e.getY() + e.getVy() * dt);
 
-            // Убираем тех, кто далеко ушёл за экран (например, ромб увернулся)
             float margin = e.getSize() * 3f;
             if (e.getX() > fieldWidth + margin || e.getX() < -margin
                     || e.getY() > fieldHeight + margin || e.getY() < -margin) {
@@ -111,8 +102,6 @@ public class GameViewModel extends ViewModel {
             }
         }
     }
-
-    // ---------- Коллизии ----------
 
     private void checkCollisions() {
         float[] diamond = getDiamondBoundsPx();
@@ -140,7 +129,6 @@ public class GameViewModel extends ViewModel {
         townLives.setValue(next);
     }
 
-    /** Возвращает [left, top, right, bottom] ромба в пикселях или null, если позиция ещё не готова. */
     private float[] getDiamondBoundsPx() {
         TownPosition pos = townPosition.getValue();
         if (pos == null) return null;
@@ -150,8 +138,6 @@ public class GameViewModel extends ViewModel {
         return new float[]{ left, top, left + diamondSizePx, top + diamondSizePx };
     }
 
-    // ---------- Спавн ----------
-
     private void spawnEnemy() {
         float[] diamond = getDiamondBoundsPx();
         if (diamond == null) return;
@@ -159,37 +145,35 @@ public class GameViewModel extends ViewModel {
         float size = ENEMY_SIZE_DP * density;
         float safeZone = diamondSizePx * 2f;
 
-        // Какие границы "свободны" — рядом с которыми нет ромба
         List<Integer> freeEdges = new ArrayList<>(4);
-        if (diamond[0] > safeZone)                                 freeEdges.add(0); // левая
-        if (diamond[2] < fieldWidth - safeZone)                    freeEdges.add(1); // правая
-        if (diamond[1] > safeZone)                                 freeEdges.add(2); // верхняя
-        if (diamond[3] < fieldHeight - safeZone)                   freeEdges.add(3); // нижняя
-        if (freeEdges.isEmpty()) freeEdges.add(0); // страховка
+        if (diamond[0] > safeZone)                                 freeEdges.add(0);
+        if (diamond[2] < fieldWidth - safeZone)                    freeEdges.add(1);
+        if (diamond[1] > safeZone)                                 freeEdges.add(2);
+        if (diamond[3] < fieldHeight - safeZone)                   freeEdges.add(3);
+        if (freeEdges.isEmpty()) freeEdges.add(0);
 
         int edge = freeEdges.get(random.nextInt(freeEdges.size()));
 
         float x, y;
         switch (edge) {
-            case 0: // слева
+            case 0:
                 x = -size;
                 y = random.nextFloat() * fieldHeight;
                 break;
-            case 1: // справа
+            case 1:
                 x = fieldWidth + size;
                 y = random.nextFloat() * fieldHeight;
                 break;
-            case 2: // сверху
+            case 2:
                 x = random.nextFloat() * fieldWidth;
                 y = -size;
                 break;
-            default: // снизу
+            default:
                 x = random.nextFloat() * fieldWidth;
                 y = fieldHeight + size;
                 break;
         }
 
-        // Целимся в центр ромба на момент спавна
         float targetX = diamond[0] + diamondSizePx / 2f;
         float targetY = diamond[1] + diamondSizePx / 2f;
         float enemyCenterX = x + size / 2f;
@@ -207,10 +191,6 @@ public class GameViewModel extends ViewModel {
         enemies.add(new Enemy(x, y, size, vx, vy, DAMAGE));
     }
 
-    /**
-     * Пытается уничтожить врага в точке (px, py).
-     * Возвращает true, если попал.
-     */
     public boolean tryDestroyEnemyAt(float px, float py) {
         Iterator<Enemy> it = enemies.iterator();
         while (it.hasNext()) {

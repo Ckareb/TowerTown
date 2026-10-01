@@ -60,23 +60,19 @@ public class GameActivity extends BaseActivity {
         });
     }
 
-    /** Подписка на позицию. Каждый раз, когда ViewModel её меняет — двигаем ромб. */
     private void observeTownPosition() {
         viewModel.getTownPosition().observe(this, position -> {
             if (position == null) return;
-            // post: гарантирует, что размеры контейнера уже измерены
             gameRoot.post(() -> moveDiamondTo(position));
         });
     }
 
-    /** Первый бросок только при создании экрана. При повороте позиция уже есть — не трогаем. */
     private void triggerFirstRollIfNeeded() {
         if (viewModel.getTownPosition().getValue() == null) {
             gameRoot.post(viewModel::rollNewPosition);
         }
     }
 
-    /** Переводит нормализованную позицию [0..1] в реальные пиксели и двигает ромб. */
     private void moveDiamondTo(TownPosition position) {
         int usableWidth  = gameRoot.getWidth()  - gameRoot.getPaddingLeft() - gameRoot.getPaddingRight();
         int usableHeight = gameRoot.getHeight() - gameRoot.getPaddingTop()  - gameRoot.getPaddingBottom();
@@ -110,7 +106,6 @@ public class GameActivity extends BaseActivity {
         finish();
     }
 
-    /** Как только View измерятся — сообщаем ViewModel размеры поля. */
     private void scheduleMetricsUpdate() {
         gameField.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -127,7 +122,6 @@ public class GameActivity extends BaseActivity {
         });
     }
 
-    // ---------- Игровой цикл ----------
 
     @Override
     protected void onResume() {
@@ -151,7 +145,7 @@ public class GameActivity extends BaseActivity {
             long now = System.nanoTime();
             if (lastFrameNanos != 0L) {
                 float dt = (now - lastFrameNanos) / 1_000_000_000f;
-                if (dt > 0.1f) dt = 0.1f; // защита от "прыжка" после паузы
+                if (dt > 0.1f) dt = 0.1f;
 
                 viewModel.tick(dt);
                 gameField.setEnemies(viewModel.getEnemies());

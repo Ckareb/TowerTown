@@ -56,7 +56,6 @@ public class GameFieldView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         if (w > 0 && h > 0) {
-            // При смене размера (поворот) — пересоздаём слой следов
             trailBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             trailCanvas = new Canvas(trailBitmap);
         }
@@ -67,17 +66,14 @@ public class GameFieldView extends View {
         super.onDraw(canvas);
         if (trailBitmap == null) return;
 
-        // Слой следов — цвет темы
         paint.setColor(isNightMode() ? Color.WHITE : Color.BLACK);
 
         for (Enemy e : enemies) {
             trailCanvas.drawRect(e.getX(), e.getY(), e.getX() + e.getSize(), e.getY() + e.getSize(), paint);
         }
 
-        // Накопленный слой следов
         canvas.drawBitmap(trailBitmap, 0, 0, null);
 
-        // Враги — красные, поверх следов
         paint.setColor(Color.RED);
         for (Enemy e : enemies) {
             canvas.drawRect(e.getX(), e.getY(), e.getX() + e.getSize(), e.getY() + e.getSize(), paint);

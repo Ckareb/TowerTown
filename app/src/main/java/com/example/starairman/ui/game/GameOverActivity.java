@@ -30,7 +30,6 @@ public class GameOverActivity extends BaseActivity {
 
         backToMenu.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainActivity.class);
-            // Очищаем стек: возвращаемся на главный и не оставляем GameOver/Game в стеке
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
