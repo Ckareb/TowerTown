@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Tower Town</string>
+    <string name="app_title">Tower Town</string>
+    <string name="main_title">Tower Town</string>
+    <string name="start_game">Начать игру</string>
+
+    <string name="dice_result_point">Выпало: %1$d</string>
+
+    <string name="town_description">Город</string>
+
+    <string name="game_over_title">Конец игры</string>
+    <string name="back_to_menu">В главное меню</string>
+</resources>
